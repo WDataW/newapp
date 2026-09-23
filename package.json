@@ -1,0 +1,38 @@
+{
+  "name": "newapp-be",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/WDataW/newapp#readme",
+  "bugs": {
+    "url": "https://github.com/WDataW/newapp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WDataW/newapp.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsx watch app.ts",
+    "build": "tsc",
+    "preview": "node dist/app.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
