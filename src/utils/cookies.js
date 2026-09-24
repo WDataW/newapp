@@ -1,7 +1,7 @@
-const { RT } = require("@root/models");
-const { signJWT } = require("./jwt");
-const { day, minute } = require("./time");
-const { isFutureDate } = require("./date");
+const { RT } = require('@root/models');
+const { signJWT } = require('./jwt');
+const { day, minute } = require('./time');
+const { isFutureDate } = require('./date');
 
 const attachCookie = ({ res, name, value, expires }) => {
     res.cookie(name, value, {

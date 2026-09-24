@@ -1,5 +1,5 @@
-const { fileTypeFromBuffer } = require("file-type");
-const { BadRequest } = require("../errors");
+const { fileTypeFromBuffer } = require('file-type');
+const { BadRequest } = require('../errors');
 
 const isImage = async (image) => {
     const { mime } = await fileTypeFromBuffer(image.data);
