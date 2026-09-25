@@ -19,6 +19,7 @@
     "start": "node --watch src/app.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.3",
@@ -36,6 +37,6 @@
     "typescript": "^7.0.2"
   },
   "imports": {
-    "#root/*": "./src/*"
+    "#root/*": "./*"
   }
 }
