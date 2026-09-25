@@ -10,5 +10,42 @@ datasource db {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model User{
-  id Int @id @default(autoincrement()) 
+  id String @id @default(uuid()) 
+  password String
+  email String @unique
+
+  refreshTokens RefreshToken[]
+  verificationToken VerificationToken?
+  resetPasswordToken ResetPasswordToken?
+  @@map("users")
+}
+model RefreshToken{
+  id String @id @default(uuid()) 
+  userId String  
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade) 
+  isRevoked Boolean @default(false)
+  token String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@map("refresh_tokens")
+
+}
+model VerificationToken{
+  userId String @id   
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade) 
+  isRevoked Boolean @default(false)
+  token String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@map("verification_tokens")
+}
+
+model ResetPasswordToken{
+  userId String @id   
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade) 
+  isRevoked Boolean @default(false)
+  token String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@map("reset_tokens")
 }
