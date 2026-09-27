@@ -34,7 +34,7 @@
   },
   "include": [
     "**/*.ts"
-  ],
+, "src/utils/hashString.js"  ],
   "exclude": [
     "node_modules",
     "dist"

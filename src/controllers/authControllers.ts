@@ -7,9 +7,11 @@ import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
+import type { User } from '#root/generated/prisma/client.ts';
+import { attachRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
 export const login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = validate(loginSchema, req.body);
-    const user = await prisma.user.findUnique({
+    const user: User | null = await prisma.user.findUnique({
         where: {
             email: email,
         }
@@ -18,9 +20,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (!bcrypt.compareSync(password, user.password))
         throw new Unauthorized('Invalid Email or Password');// wrong password
 
-    // successful login 
-    // attach auth tokens here
-
+    // successful login
+    await attachRefreshToken(res, user);
     res.status(StatusCodes.OK).json();
 }
 export const register = async (req: Request, res: Response): Promise<void> => {

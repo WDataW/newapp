@@ -1,6 +1,12 @@
 export const isFutureDate = (date: Date): boolean => date > new Date();
 export const dateOfInvocation = (): Date => new Date();
 
+
+export const getFutureDate = (dateOffset: number): Date => {// offset in days
+    const newDate = new Date();
+    newDate.setDate(newDate.getDate() + dateOffset)
+    return newDate;
+}
 export const getToday = (): Date => {
     const now: Date = new Date();
     const today: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
