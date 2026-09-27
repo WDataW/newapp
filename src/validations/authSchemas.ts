@@ -17,6 +17,7 @@ export const verifyEmailSchema = zod.object({
 
 export const registerSchema = zod.object({
     email: zod.email(),
-    password: passwordValdiator
+    password: passwordValdiator,
+    username: zod.string().min(3).max(20)
 })
 
