@@ -21,3 +21,11 @@ export const registerSchema = zod.object({
     username: zod.string().min(3).max(20)
 })
 
+export const refreshJWTPayloadSchema = zod.object({
+    sub: zod.uuid(),
+    jti: zod.uuid(),
+    tokenVersion: zod.number().int().nonnegative(),
+    exp: zod.number(),
+    iat: zod.number()
+});
+export type RefreshJWTOutput = zod.infer<typeof refreshJWTPayloadSchema>;

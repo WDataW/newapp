@@ -1,14 +1,10 @@
+import type { refreshJWTPayloadSchema } from '#root/src/validations/authSchemas.ts';
+import { default as zod } from 'zod';
 
-export interface authTokens {
-    access?: string,
-    refresh: string
-}
-
-export interface accessJWTPayload {
-
-};
-export interface refreshJWTPayload {
+export interface RefreshJWTInput {
     sub: string,
     jti: string,
     tokenVersion: number
 };
+export type RefreshJWTOutput = zod.infer<typeof refreshJWTPayloadSchema>;
+

@@ -1,11 +1,9 @@
-import type { Request, Response } from 'express'
+import type { Response } from 'express'
 import { signRefreshJWT } from '#root/src/utils/jwt.ts';
-import type { refreshJWTPayload } from '#root/src/types/authTypes.ts';
-import { JWT_SECRET } from '#root/src/config/environment.ts';
 import { prisma } from '#root/prisma/client.ts';
-import { day } from '#root/src/utils/time.ts';
 import { getFutureDate } from '#root/src/utils/date.ts';
 import type { User } from '#root/generated/prisma/client.ts';
+import type { RefreshJWTInput } from '#root/src/types/authTypes.ts';
 export const issueRefreshToken = async (user: User) => {
     const refreshToken = await prisma.refreshToken.create({
         data: {
@@ -18,7 +16,7 @@ export const issueRefreshToken = async (user: User) => {
 export const attachRefreshToken = async (res: Response, user: User) => {
     const DBRefreshToken = await issueRefreshToken(user);
 
-    const refreshPayload: refreshJWTPayload = {
+    const refreshPayload: RefreshJWTInput = {
         sub: DBRefreshToken.userId,
         jti: DBRefreshToken.id,
         tokenVersion: user.tokenVersion,
