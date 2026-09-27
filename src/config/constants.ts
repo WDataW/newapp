@@ -1,1 +1,3 @@
-export const PORT = process.env.PORT || 5000;
+import { PORT } from '#root/src/config/environment.ts';
+
+export const LPORT = PORT || 5000;
