@@ -26,6 +26,12 @@ export const refreshJWTPayloadSchema = zod.object({
     jti: zod.uuid(),
     tokenVersion: zod.number().int().nonnegative(),
     exp: zod.number(),
-    iat: zod.number()
+    iat: zod.number(),
+    type: zod.enum(['refresh', 'access'])
 });
-export type RefreshJWTOutput = zod.infer<typeof refreshJWTPayloadSchema>;
+export const accessJWTPayloadSchema = zod.object({
+    sub: zod.uuid(),
+    exp: zod.number(),
+    iat: zod.number(),
+    type: zod.enum(['refresh', 'access'])
+});
