@@ -9,6 +9,7 @@ export const issueRefreshToken = async (user: User) => {
         data: {
             userId: user.id,
             expiresAt: getFutureDate(15),
+            tokenVersion: user.tokenVersion,
         }
     })
     return refreshToken;

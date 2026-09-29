@@ -27,11 +27,11 @@ export const refreshJWTPayloadSchema = zod.object({
     tokenVersion: zod.number().int().nonnegative(),
     exp: zod.number(),
     iat: zod.number(),
-    type: zod.enum(['refresh', 'access'])
+    type: zod.literal('refresh'),
 });
 export const accessJWTPayloadSchema = zod.object({
     sub: zod.uuid(),
     exp: zod.number(),
     iat: zod.number(),
-    type: zod.enum(['refresh', 'access'])
+    type: zod.literal('access'),
 });

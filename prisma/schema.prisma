@@ -27,6 +27,7 @@ model RefreshToken{
   user User @relation(fields:[userId],references:[id],onDelete:Cascade) 
   isRevoked Boolean @default(false)
   expiresAt DateTime
+  tokenVersion Int
   createdAt DateTime @default(now())
   @@map("refresh_tokens")
 }

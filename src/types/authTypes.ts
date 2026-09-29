@@ -12,7 +12,6 @@ export interface RefreshJWTInput {
 };
 export interface AccessJWTInput {
     sub: string,
-    tokenVersion: number
 };
 export type RefreshJWTOutput = zod.infer<typeof refreshJWTPayloadSchema>;
 export type AccessJWTOutput = zod.infer<typeof accessJWTPayloadSchema>;

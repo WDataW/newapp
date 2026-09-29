@@ -38,3 +38,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(StatusCodes.OK).json(newUser);
 }
+
+export const showMe = async (req: Request, res: Response): Promise<void> => {
+
+    res.status(StatusCodes.OK).json(req.user);
+}
