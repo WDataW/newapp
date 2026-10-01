@@ -17,17 +17,19 @@ export const signJWT = (payload: Object, { expiresIn }: { expiresIn: number }): 
     return JWT.sign(payload, JWT_SECRET, { expiresIn });
 }
 
-export const verifyJWT = (token: string): AccessJWTOutput | RefreshJWTOutput => {
-    const payload = JWT.verify(token, JWT_SECRET) as JwtInitalOutput;
-    if (payload.type == 'access') return validate(accessJWTPayloadSchema, payload) as AccessJWTOutput;
-    if (payload.type !== 'refresh') throw new CustomError('Invalid Token');
+export const verifyAccessJWT = (token: string): AccessJWTOutput => {
+    const payload = JWT.verify(token, JWT_SECRET);
+    return validate(accessJWTPayloadSchema, payload) as AccessJWTOutput;
+}
+export const verifyRefreshJWT = (token: string): RefreshJWTOutput => {
+    const payload = JWT.verify(token, JWT_SECRET);
     return validate(refreshJWTPayloadSchema, payload) as RefreshJWTOutput;
 }
 
 export const signRefreshJWT = (payload: RefreshJWTInput): string => {
-    return JWT.sign({ ...payload, type: 'refresh' }, JWT_SECRET, { expiresIn: '14d' });
+    return JWT.sign(payload, JWT_SECRET, { expiresIn: '14d' });
 }
 
 export const signAccessJWT = (payload: AccessJWTInput): string => {
-    return JWT.sign({ ...payload, type: 'access' }, JWT_SECRET, { expiresIn: 5 });
+    return JWT.sign(payload, JWT_SECRET, { expiresIn: 5 });
 }

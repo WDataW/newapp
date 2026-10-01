@@ -1,10 +1,39 @@
-import type { Response } from 'express'
-import { signRefreshJWT } from '#root/src/utils/jwt.ts';
+import type { Request, Response } from 'express'
+import { signAccessJWT, signRefreshJWT, verifyRefreshJWT } from '#root/src/utils/jwt.ts';
 import { prisma } from '#root/prisma/client.ts';
-import { getFutureDate } from '#root/src/utils/date.ts';
+import { getFutureDate, isFutureDate } from '#root/src/utils/date.ts';
 import type { User } from '#root/generated/prisma/client.ts';
-import type { RefreshJWTInput } from '#root/src/types/authTypes.ts';
-export const issueRefreshToken = async (user: User) => {
+import type { RefreshJWTInput, RefreshJWTOutput } from '#root/src/types/authTypes.ts';
+import { StatusCodes } from 'http-status-codes';
+import { validate } from '#root/src/validations/validate.ts';
+import { refreshTokenSchema } from '#root/src/validations/authSchemas.ts';
+import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
+import { fetchRefreshToken, fetchUser } from '#root/src/utils/fetchRecord.ts';
+
+
+
+export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
+    const { refreshToken } = validate(refreshTokenSchema, req.body);
+    const sub = await validateRefreshToken(refreshToken);
+    const accessToken = signAccessJWT({ sub });
+    res.status(StatusCodes.OK).json({ accessToken });
+}
+
+const validateRefreshToken = async (refreshJWT: string): Promise<string> => {
+    const receivedToken: RefreshJWTOutput = verifyRefreshJWT(refreshJWT);
+    const DBRefreshToken = await fetchRefreshToken(receivedToken.jti);
+    if (!DBRefreshToken) throw new Unauthorized('Invalid Refresh Token');
+    if (DBRefreshToken.isRevoked) throw new Unauthorized('Invalid Refresh Token');
+    if (!isFutureDate(DBRefreshToken.expiresAt)) throw new Unauthorized('Invalid Refresh Token');
+    if (receivedToken.sub !== DBRefreshToken.userId) throw new Unauthorized('Invalid Refresh Token');
+
+    const user = await fetchUser(DBRefreshToken.userId);
+    if (!user) throw new Unauthorized('Invalid Refresh Token');
+    if (DBRefreshToken.tokenVersion !== user.tokenVersion) throw new Unauthorized('Invalid Refresh Token')
+
+    return user.id;// validation successful, return user.id aka 'sub' for the next step
+}
+export const createDBRefreshToken = async (user: User) => {
     const refreshToken = await prisma.refreshToken.create({
         data: {
             userId: user.id,
@@ -14,8 +43,8 @@ export const issueRefreshToken = async (user: User) => {
     })
     return refreshToken;
 }
-export const attachRefreshToken = async (res: Response, user: User) => {
-    const DBRefreshToken = await issueRefreshToken(user);
+export const issueRefreshToken = async (user: User): Promise<string> => {
+    const DBRefreshToken = await createDBRefreshToken(user);
 
     const refreshPayload: RefreshJWTInput = {
         sub: DBRefreshToken.userId,
@@ -23,5 +52,5 @@ export const attachRefreshToken = async (res: Response, user: User) => {
         tokenVersion: user.tokenVersion,
     }
     const refreshToken = signRefreshJWT(refreshPayload);
-    return res.setHeader('X-Refresh-Token', refreshToken);
+    return refreshToken;
 }

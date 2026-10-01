@@ -8,21 +8,18 @@ import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import type { User } from '#root/generated/prisma/client.ts';
-import { attachRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
+import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
+import { fetchUserByEmail } from '#root/src/utils/fetchRecord.ts';
 export const login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = validate(loginSchema, req.body);
-    const user: User | null = await prisma.user.findUnique({
-        where: {
-            email: email,
-        }
-    });
+    const user: User | null = await fetchUserByEmail(email);
     if (!user) throw new Unauthorized('Invalid Email or Password');// inexistent user
     if (!bcrypt.compareSync(password, user.password))
         throw new Unauthorized('Invalid Email or Password');// wrong password
 
     // successful login
-    await attachRefreshToken(res, user);
-    res.status(StatusCodes.OK).json();
+    const refreshToken = await issueRefreshToken(user);
+    res.status(StatusCodes.OK).json({ refreshToken });
 }
 export const register = async (req: Request, res: Response): Promise<void> => {
     const { email, password, username } = validate(registerSchema, req.body);
@@ -40,6 +37,5 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const showMe = async (req: Request, res: Response): Promise<void> => {
-
     res.status(StatusCodes.OK).json(req.user);
 }

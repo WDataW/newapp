@@ -21,17 +21,19 @@ export const registerSchema = zod.object({
     username: zod.string().min(3).max(20)
 })
 
+export const refreshTokenSchema = zod.object({
+    refreshToken: zod.string().regex(/^(?:[\w-]*\.){2}[\w-]*$/)
+})
+
 export const refreshJWTPayloadSchema = zod.object({
     sub: zod.uuid(),
     jti: zod.uuid(),
     tokenVersion: zod.number().int().nonnegative(),
     exp: zod.number(),
     iat: zod.number(),
-    type: zod.literal('refresh'),
 });
 export const accessJWTPayloadSchema = zod.object({
     sub: zod.uuid(),
     exp: zod.number(),
     iat: zod.number(),
-    type: zod.literal('access'),
 });
