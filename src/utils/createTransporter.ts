@@ -1,7 +1,8 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
+
 
 // Create a transporter using SMTP
-const createTransporter = () => nodemailer.createTransport({
+export const createTransporter = () => nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: 587,
     secure: process.env.NODE_ENV == 'production',
@@ -10,4 +11,3 @@ const createTransporter = () => nodemailer.createTransport({
         pass: process.env.SMTP_PASS,
     },
 });
-module.exports = createTransporter;
