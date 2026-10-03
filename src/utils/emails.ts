@@ -1,27 +1,28 @@
-const { appName } = require("../config/constants");
 
 // email senders
-const sendMail = require("../utils/sendEmail");
-const createTransporter = require("./createTransporter");
 
-const sendVerificationEmail = async (to, verificationCode) => {
+import { appName } from '#root/src/config/constants.ts';
+import { EMAIL_SENDER_DOMAIN, FRONT_END_URL } from '#root/src/config/environment.ts';
+import type { PasswordResetEmailCredintials, VerificationEmailCredintials } from '#root/src/types/emailTypes.ts';
+import { createTransporter } from '#root/src/utils/createTransporter.ts';
+import { sendMail } from '#root/src/utils/sendEmail.ts';
+
+export const sendVerificationEmail = async (to: string, verificationCode: number) => {
   const mail = emailVerification({ to, verificationCode });
   await sendMail(mail);
 }
-const sendResetEmail = async (to, resetToken) => {
-  const resetUrl = `${process.env.FRONT_END_URL}/auth/reset-password?email=${to}&token=${resetToken}`
-  const mail = passwordReset({ to, resetUrl });
+export const sendResetEmail = async (credintials: PasswordResetEmailCredintials) => {
+  const mail = passwordReset(credintials);
   await sendMail(mail);
 }
-const sendFakeVerificationEmail = async (to, verificationCode) => {
+export const sendFakeVerificationEmail = async (credintials: VerificationEmailCredintials) => {
   const transporter = createTransporter();
-  const mail = emailVerification({ to, verificationCode });
+  const mail = emailVerification(credintials);
   await transporter.sendMail(mail);
 }
-const sendFakeResetEmail = async (to, resetToken) => {
+export const sendFakeResetEmail = async (resetEmailInput: PasswordResetEmailCredintials) => {
   const transporter = createTransporter();
-  const resetUrl = `${process.env.FRONT_END_URL}/auth/reset-password?email=${to}&token=${resetToken}`
-  const mail = passwordReset({ to, resetUrl });
+  const mail = passwordReset(resetEmailInput);
   await transporter.sendMail(mail);
 }
 
@@ -29,8 +30,8 @@ const sendFakeResetEmail = async (to, resetToken) => {
 
 
 // email contents
-const emailVerification = ({ to, verificationCode }) => ({
-  from: process.env.EMAIL_SOURCE,
+const emailVerification = ({ to, verificationCode }: VerificationEmailCredintials) => ({
+  from: EMAIL_SENDER_DOMAIN,
   to,
   subject: 'Verify your email address',
   text: `
@@ -117,12 +118,15 @@ Thanks!
 
 
 
-const passwordReset = ({ to, resetUrl }) => ({
-  from: process.env.EMAIL_SOURCE,
-  to,
-  subject: 'Reset your password',
+const passwordReset = ({ to, resetToken }: PasswordResetEmailCredintials) => {
+  const resetUrl = `${FRONT_END_URL}/auth/reset-password?email=${to}&token=${resetToken}`
 
-  text: `
+  return {
+    from: EMAIL_SENDER_DOMAIN,
+    to,
+    subject: 'Reset your password',
+
+    text: `
 Hello!
 
 We received a request to reset your password.
@@ -134,9 +138,9 @@ ${resetUrl}
 This link will expire soon. If you didn't request a password reset, you can safely ignore this email.
 
 Thanks!
-  `.trim(),
+`.trim(),
 
-  html: `
+    html: `
   <div style="background-color: #f4f4f7; padding: 40px 20px; font-family: Arial, sans-serif;">
     <div style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
       
@@ -193,12 +197,12 @@ Thanks!
         <p style="margin: 0; color: #aaaaaa; font-size: 12px;">
           Sent by ${appName} · This is an automated message
         </p>
-      </div>
+        </div>
 
-    </div>
-  </div>
-`.trim(),
-});
+        </div>
+        </div>
+        `.trim(),
+  }
 
+}
 
-module.exports = { emailVerification, passwordReset, sendFakeResetEmail, sendFakeVerificationEmail, sendResetEmail, sendVerificationEmail }

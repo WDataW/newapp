@@ -9,3 +9,5 @@ export const PORT: string = getEnv('PORT');
 export const DATABASE_URL: string = getEnv('DATABASE_URL');
 export const JWT_SECRET: string = getEnv('JWT_SECRET');
 export const RESEND_SECRET_KEY: string = getEnv('RESEND_SECRET_KEY');
+export const EMAIL_SENDER_DOMAIN: string = getEnv('EMAIL_SENDER_DOMAIN');
+export const FRONT_END_URL: string = getEnv('FRONT_END_URL');

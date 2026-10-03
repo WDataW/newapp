@@ -5,3 +5,12 @@ export interface Email {
     text: string,
     html: string,
 }
+
+export interface VerificationEmailCredintials {
+    to: string,
+    verificationCode: number
+}
+export interface PasswordResetEmailCredintials {
+    to: string,
+    resetToken: string
+}
