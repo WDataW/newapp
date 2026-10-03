@@ -7,4 +7,5 @@ const getEnv = (key: string): string => {
 
 export const PORT: string = getEnv('PORT');
 export const DATABASE_URL: string = getEnv('DATABASE_URL');
-export const JWT_SECRET: string = getEnv('JWT_SECRET')
+export const JWT_SECRET: string = getEnv('JWT_SECRET');
+export const RESEND_SECRET_KEY: string = getEnv('RESEND_SECRET_KEY');
