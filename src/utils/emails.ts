@@ -7,8 +7,8 @@ import type { PasswordResetEmailCredintials, VerificationEmailCredintials } from
 import { createTransporter } from '#root/src/utils/createTransporter.ts';
 import { sendMail } from '#root/src/utils/sendEmail.ts';
 
-export const sendVerificationEmail = async (to: string, verificationCode: number) => {
-  const mail = emailVerification({ to, verificationCode });
+export const sendVerificationEmail = async (credintials: VerificationEmailCredintials) => {
+  const mail = emailVerification(credintials);
   await sendMail(mail);
 }
 export const sendResetEmail = async (credintials: PasswordResetEmailCredintials) => {
