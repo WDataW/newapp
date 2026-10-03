@@ -30,27 +30,28 @@ export const sendFakeResetEmail = async (resetEmailInput: PasswordResetEmailCred
 
 
 // email contents
-const emailVerification = ({ to, verificationCode }: VerificationEmailCredintials) => ({
-  from: EMAIL_SENDER_DOMAIN,
-  to,
-  subject: 'Verify your email address',
-  text: `
+const emailVerification = ({ to, verificationToken }: VerificationEmailCredintials) => {
+  const verificationUrl = `${FRONT_END_URL}/auth/verify-email?email=${to}&token=${verificationToken}`
+
+  return {
+    from: EMAIL_SENDER_DOMAIN,
+    to,
+    subject: 'Verify your email address',
+    text: `
 Welcome!
 
 Thanks for creating an account.
 
-Your verification code is:
+Click the link below to verify your email address:
 
-${verificationCode}
+${verificationUrl}
 
-Enter this 6-digit code in the verification screen to verify your email address.
-
-This code will expire soon. If you didn't create an account, you can safely ignore this email.
+This link will expire soon. If you didn't create an account, you can safely ignore this email.
 
 Thanks!
 `.trim(),
 
-  html: `
+    html: `
   <div style="background-color: #f4f4f7; padding: 40px 20px; font-family: Arial, sans-serif;">
     <div style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
 
@@ -66,41 +67,40 @@ Thanks!
         <p style="margin: 0 0 16px;">Welcome!</p>
 
         <p style="margin: 0 0 24px;">
-          Thanks for creating an account. Please use the verification code below to verify your email address.
+          Thanks for creating an account. Please click the button below to verify your email address.
         </p>
 
-        <!-- Code block -->
-        <div
-          style="
-            margin: 0 0 24px;
-            padding: 24px;
-            background-color: #f3f4f6;
-            border: 1px dashed #d1d5db;
-            border-radius: 8px;
-            text-align: center;
-          "
-        >
-          <span
+        <!-- Button -->
+        <div style="margin: 0 0 24px; text-align: center;">
+          <a
+            href="${verificationUrl}"
             style="
-              font-size: 32px;
-              font-weight: 700;
-              letter-spacing: 5px;
-              color: #111827;
-              font-family: monospace;
+              display: inline-block;
+              padding: 14px 32px;
+              background-color: #2563eb;
+              color: #ffffff;
+              font-size: 16px;
+              font-weight: 600;
+              text-decoration: none;
+              border-radius: 8px;
             "
           >
-            ${verificationCode}
-          </span>
+            Verify Email
+          </a>
         </div>
 
-        <p style="margin: 0 0 24px; text-align: center; color: #666666; font-size: 13px;">
-          Enter this 6-digit code in the verification screen to verify your email address.
+        <p style="margin: 0 0 8px; text-align: center; color: #666666; font-size: 13px;">
+          Or copy and paste this link into your browser:
+        </p>
+
+        <p style="margin: 0 0 24px; text-align: center; font-size: 12px; word-break: break-all;">
+          <a href="${verificationUrl}" style="color: #2563eb;">${verificationUrl}</a>
         </p>
 
         <hr style="border: none; border-top: 1px solid #eeeeee; margin: 0 0 24px;" />
 
         <p style="margin: 0; color: #999999; font-size: 13px;">
-          This code will expire soon. If you didn't create an account, you can safely ignore this email.
+          This link will expire soon. If you didn't create an account, you can safely ignore this email.
         </p>
       </div>
 
@@ -114,7 +114,8 @@ Thanks!
     </div>
   </div>
 `.trim(),
-});
+  }
+}
 
 
 
