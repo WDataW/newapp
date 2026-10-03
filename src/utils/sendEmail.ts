@@ -1,7 +1,8 @@
+import { RESEND_SECRET_KEY } from '#root/src/config/environment.ts';
 import { CustomError } from '#root/src/errors/CustomError.ts';
 import type { Email } from '#root/src/types/emailTypes.ts';
 import { Resend } from 'resend';
-const resend = new Resend();
+const resend = new Resend(RESEND_SECRET_KEY);
 export const sendMail = async (email: Email) => {
     const { data, error } = await resend.emails.send(email);
     if (error) throw new CustomError(error.message);

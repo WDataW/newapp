@@ -2,7 +2,7 @@
 // email senders
 
 import { appName } from '#root/src/config/constants.ts';
-import { EMAIL_SENDER_DOMAIN, FRONT_END_URL } from '#root/src/config/environment.ts';
+import { EMAIL_SENDER, FRONT_END_URL } from '#root/src/config/environment.ts';
 import type { PasswordResetEmailCredintials, VerificationEmailCredintials } from '#root/src/types/emailTypes.ts';
 import { createTransporter } from '#root/src/utils/createTransporter.ts';
 import { sendMail } from '#root/src/utils/sendEmail.ts';
@@ -34,7 +34,7 @@ const emailVerification = ({ to, verificationToken }: VerificationEmailCredintia
   const verificationUrl = `${FRONT_END_URL}/auth/verify-email?email=${to}&token=${verificationToken}`
 
   return {
-    from: EMAIL_SENDER_DOMAIN,
+    from: EMAIL_SENDER,
     to,
     subject: 'Verify your email address',
     text: `
@@ -123,7 +123,7 @@ const passwordReset = ({ to, resetToken }: PasswordResetEmailCredintials) => {
   const resetUrl = `${FRONT_END_URL}/auth/reset-password?email=${to}&token=${resetToken}`
 
   return {
-    from: EMAIL_SENDER_DOMAIN,
+    from: EMAIL_SENDER,
     to,
     subject: 'Reset your password',
 

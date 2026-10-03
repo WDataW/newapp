@@ -1,22 +1,22 @@
-import { passwordValdiator, token } from '#root/src/validations/credintialsSchemas.ts';
+import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
 import * as zod from 'zod';
 
 export const loginSchema = zod.object({
-    email: zod.email(),
+    email: emailValidator,
     password: passwordValdiator
 })
 export const resetPasswordSchema = zod.object({
-    email: zod.email(),
-    resetToken: token,
+    email: emailValidator,
+    resetToken: tokenValidator,
     newPassword: passwordValdiator
 })
 export const verifyEmailSchema = zod.object({
-    email: zod.email(),
-    token: token
+    email: emailValidator,
+    tokenValidator: tokenValidator
 })
 
 export const registerSchema = zod.object({
-    email: zod.email(),
+    email: emailValidator,
     password: passwordValdiator,
     username: zod.string().min(3).max(20)
 })
