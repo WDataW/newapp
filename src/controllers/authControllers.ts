@@ -7,7 +7,7 @@ import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
-import type { User, VerificationToken } from '#root/generated/prisma/client.ts';
+import type { User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
 import { fetchUserByEmail } from '#root/src/utils/fetchRecord.ts';
 import { sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
@@ -28,6 +28,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 export const register = async (req: Request, res: Response): Promise<void> => {
     const { email, password, username } = validate(registerSchema, req.body);
     const hashedPassword = await hashPassword(password);
+    const existingUser = await fetchUserByEmail(email);
+    if (existingUser) {
+        // existing account just resend verification email
+        await requestVerificationEmail(existingUser);
+        res.status(StatusCodes.OK).json();
+        return;// don't create a new user since they already exist
+    }
     const newUser = await prisma.user.create({
         data: {
             email, password: hashedPassword, username
@@ -36,7 +43,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // successful register
     await requestVerificationEmail(newUser);
-    res.status(StatusCodes.OK).json(newUser);
+    res.status(StatusCodes.OK).json();
 }
 
 const requestVerificationEmail = async (user: User): Promise<void> => {
