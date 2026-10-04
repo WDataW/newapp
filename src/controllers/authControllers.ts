@@ -14,6 +14,8 @@ import { sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/util
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
 import { getFutureDate, isFutureDate } from '#root/src/utils/date.ts';
 import { emailValidator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
+
+
 export const login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = validate(loginSchema, req.body);
     const user: User = await fetchUserByEmail(email);
@@ -35,18 +37,30 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         res.status(StatusCodes.OK).json();
         return;// don't create a new user since they already exist
     }
-
     const newUser = await prisma.user.create({
         data: {
             email, password: hashedPassword, username
         }
     });
-
     // successful register
     await requestVerificationEmail(newUser);
     res.status(StatusCodes.OK).json();
 }
 
+
+// Password Reset Starts Here
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+    res.status(StatusCodes.OK).json();
+}
+export const requestResetPassword = async (req: Request, res: Response): Promise<void> => {
+    const email = validate(emailValidator, req.body?.email);
+    const user = await fetchUserByEmail(email);
+    await requestVerificationEmail(user);
+    res.status(StatusCodes.OK).json();
+}
+// Password Reset Ends Here
+
+// Email Verification Starts Here
 export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     const token = validate(tokenValidator, req.query?.token);
 
@@ -69,7 +83,6 @@ export const resendVerificationEmail = async (req: Request, res: Response): Prom
     await requestVerificationEmail(user);
     res.status(StatusCodes.OK).json();
 }
-
 const requestVerificationEmail = async (user: User): Promise<void> => {
     const verificationToken = await createVerificationToken(user);
     await sendFakeVerificationEmail({ to: user.email, verificationToken });
@@ -91,6 +104,9 @@ const createVerificationToken = async (user: User): Promise<string> => {
     });
     return verificationToken.raw;
 }
+// Email Verification Ends Here
+
+
 export const showMe = async (req: Request, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json(req.user);
 }
