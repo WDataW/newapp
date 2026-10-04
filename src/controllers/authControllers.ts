@@ -10,9 +10,9 @@ import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import type { User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
 import { fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
-import { sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
+import { sendFakeResetEmail, sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
-import { getFutureDate, isFutureDate } from '#root/src/utils/date.ts';
+import { getFutureDate, getNextHour, isFutureDate } from '#root/src/utils/date.ts';
 import { emailValidator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
 
 
@@ -47,16 +47,29 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(StatusCodes.OK).json();
 }
 
-
 // Password Reset Starts Here
-export const resetPassword = async (req: Request, res: Response): Promise<void> => {
-    res.status(StatusCodes.OK).json();
-}
 export const requestResetPassword = async (req: Request, res: Response): Promise<void> => {
     const email = validate(emailValidator, req.body?.email);
     const user = await fetchUserByEmail(email);
-    await requestVerificationEmail(user);
+    const resetToken = await createResetToken(user);
+    await sendFakeResetEmail({ to: user.email, resetToken });
     res.status(StatusCodes.OK).json();
+}
+export const createResetToken = async (user: User): Promise<string> => {
+    const resetToken = generateHashedToken();
+    await prisma.resetPasswordToken.upsert({
+        where: { userId: user.id },
+        update: {
+            token: resetToken.hash,
+            expiresAt: getNextHour(),
+        },
+        create: {
+            userId: user.id,
+            token: resetToken.hash,
+            expiresAt: getNextHour(),
+        }
+    });
+    return resetToken.raw;
 }
 // Password Reset Ends Here
 
