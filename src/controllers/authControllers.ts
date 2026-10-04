@@ -35,6 +35,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         res.status(StatusCodes.OK).json();
         return;// don't create a new user since they already exist
     }
+
     const newUser = await prisma.user.create({
         data: {
             email, password: hashedPassword, username
@@ -45,7 +46,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     await requestVerificationEmail(newUser);
     res.status(StatusCodes.OK).json();
 }
-
+export const resendVerificationEmail = async (req: Request, res: Response): Promise<void> => {
+    const email = validate(emailValidator, req.body?.email);
+    const user = await fetchUserByEmail(email);
+    await requestVerificationEmail(user);
+    res.status(StatusCodes.OK).json();
+}
 const requestVerificationEmail = async (user: User): Promise<void> => {
     const verificationToken = await createVerificationToken(user);
     await sendFakeVerificationEmail({ to: user.email, verificationToken });
