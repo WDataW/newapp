@@ -9,11 +9,11 @@ import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import type { User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
-import { fetchUserByEmail } from '#root/src/utils/fetchRecord.ts';
+import { fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
 import { sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
-import { getFutureDate } from '#root/src/utils/date.ts';
-import { emailValidator } from '#root/src/validations/credintialsValidators.ts';
+import { getFutureDate, isFutureDate } from '#root/src/utils/date.ts';
+import { emailValidator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
 export const login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = validate(loginSchema, req.body);
     const user: User = await fetchUserByEmail(email);
@@ -46,12 +46,30 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     await requestVerificationEmail(newUser);
     res.status(StatusCodes.OK).json();
 }
+
+export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+    const token = validate(tokenValidator, req.query?.token);
+
+    const verificationToken = await fetchVerificationToken(token);
+    if (!isFutureDate(verificationToken.expiresAt)) throw new BadRequest('Expired Verification Token');
+    await prisma.user.update({// email verified successfully
+        where: {
+            id: verificationToken.userId
+        },
+        data: {
+            isEmailVerified: true
+        }
+    });
+    res.status(StatusCodes.OK).json();
+}
+
 export const resendVerificationEmail = async (req: Request, res: Response): Promise<void> => {
     const email = validate(emailValidator, req.body?.email);
     const user = await fetchUserByEmail(email);
     await requestVerificationEmail(user);
     res.status(StatusCodes.OK).json();
 }
+
 const requestVerificationEmail = async (user: User): Promise<void> => {
     const verificationToken = await createVerificationToken(user);
     await sendFakeVerificationEmail({ to: user.email, verificationToken });
