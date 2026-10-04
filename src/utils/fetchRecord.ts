@@ -33,6 +33,8 @@ export const fetchVerificationToken = async (token: string): Promise<Verificatio
     });
 
     if (!verificationToken) throw new BadRequest('Invalid Verification Token');
+    if (verificationToken.isRevoked) throw new BadRequest('Invalid Verification Token');
+    if (!isFutureDate(verificationToken.expiresAt)) throw new BadRequest('Invalid Verification Token');
     return verificationToken;
 }
 export const fetchResetToken = async (token: string): Promise<ResetPasswordToken> => {
@@ -42,7 +44,8 @@ export const fetchResetToken = async (token: string): Promise<ResetPasswordToken
         }
     });
 
-    if (!resetToken) throw new BadRequest('Invalid Reset Token');
+    if (!resetToken) throw new BadRequest('Invalid ResetPP Token');
+    if (resetToken.isRevoked) throw new BadRequest('Invalid Reset Token');
     if (!isFutureDate(resetToken.expiresAt)) throw new BadRequest('Invalid Reset Token');
     return resetToken;
 }

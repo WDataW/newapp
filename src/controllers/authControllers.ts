@@ -7,7 +7,7 @@ import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
-import type { User } from '#root/generated/prisma/client.ts';
+import type { ResetPasswordToken, User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
 import { fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
 import { sendFakeResetEmail, sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
@@ -53,13 +53,20 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     const token = validate(tokenValidator, req.query?.token);
 
     const newPassword = validate(passwordValdiator, req.body?.newPassword);
-    const refreshToken = await fetchResetToken(hashString(token));
-    const user = await fetchUser(refreshToken.userId);
+    const resetToken = await fetchResetToken(hashString(token));
+    const user = await fetchUser(resetToken.userId);
 
     const hashedPassword = await hashPassword(newPassword);
     await prisma.user.update({// set new password
         where: { id: user.id },
-        data: { password: hashedPassword }
+        data: {
+            password: hashedPassword,
+            resetPasswordToken: {
+                update: {
+                    isRevoked: true,
+                }
+            },
+        }
     });
     res.status(StatusCodes.OK).json();
 }
@@ -94,13 +101,17 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     const token = validate(tokenValidator, req.query?.token);
 
     const verificationToken = await fetchVerificationToken(token);
-    if (!isFutureDate(verificationToken.expiresAt)) throw new BadRequest('Expired Verification Token');
     await prisma.user.update({// email verified successfully
         where: {
             id: verificationToken.userId
         },
         data: {
-            isEmailVerified: true
+            isEmailVerified: true,
+            verificationToken: {
+                update: {
+                    isRevoked: true
+                }
+            }
         }
     });
     res.status(StatusCodes.OK).json();
