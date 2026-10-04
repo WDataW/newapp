@@ -6,8 +6,7 @@ export const loginSchema = zod.object({
     password: passwordValdiator
 })
 export const resetPasswordSchema = zod.object({
-    email: emailValidator,
-    resetToken: tokenValidator,
+    token: tokenValidator,
     newPassword: passwordValdiator
 })
 export const verifyEmailSchema = zod.object({

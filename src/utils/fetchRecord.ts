@@ -1,10 +1,11 @@
 // intended for basic prisma findUnique using a unique attribute value (email, id)
 
 import type { VerificationToken } from '#root/generated/prisma/browser.ts';
-import type { RefreshToken, User } from '#root/generated/prisma/client.ts';
+import type { RefreshToken, ResetPasswordToken, User } from '#root/generated/prisma/client.ts';
 import { prisma } from '#root/prisma/client.ts';
 import { BadRequest } from '#root/src/errors/BadRequest.ts';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
+import { isFutureDate } from '#root/src/utils/date.ts';
 
 export const fetchRefreshToken = async (id: string): Promise<RefreshToken> => {
     const refreshToken = await prisma.refreshToken.findUnique({
@@ -33,6 +34,17 @@ export const fetchVerificationToken = async (token: string): Promise<Verificatio
 
     if (!verificationToken) throw new BadRequest('Invalid Verification Token');
     return verificationToken;
+}
+export const fetchResetToken = async (token: string): Promise<ResetPasswordToken> => {
+    const resetToken = await prisma.resetPasswordToken.findUnique({
+        where: {
+            token
+        }
+    });
+
+    if (!resetToken) throw new BadRequest('Invalid Reset Token');
+    if (!isFutureDate(resetToken.expiresAt)) throw new BadRequest('Invalid Reset Token');
+    return resetToken;
 }
 export const fetchUserByEmail = async (email: string): Promise<User> => {
     const user = await prisma.user.findUnique({

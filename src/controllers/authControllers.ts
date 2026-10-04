@@ -1,19 +1,20 @@
 import { prisma } from '#root/prisma/client.ts';
-import bcrypt from 'bcrypt';
+import bcrypt, { hash } from 'bcrypt';
 import { BadRequest } from '#root/src/errors/BadRequest.ts';
 import { hashPassword } from '#root/src/utils/hashPassword.ts';
-import { loginSchema, registerSchema } from '#root/src/validations/authSchemas.ts';
+import { loginSchema, registerSchema, resetPasswordSchema } from '#root/src/validations/authSchemas.ts';
 import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import type { User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
-import { fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
+import { fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
 import { sendFakeResetEmail, sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
 import { getFutureDate, getNextHour, isFutureDate } from '#root/src/utils/date.ts';
-import { emailValidator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
+import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
+import { hashString } from '#root/src/utils/hashString.ts';
 
 
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -48,6 +49,21 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 }
 
 // Password Reset Starts Here
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+    const token = validate(tokenValidator, req.query?.token);
+
+    const newPassword = validate(passwordValdiator, req.body?.newPassword);
+    const refreshToken = await fetchResetToken(hashString(token));
+    const user = await fetchUser(refreshToken.userId);
+
+    const hashedPassword = await hashPassword(newPassword);
+    await prisma.user.update({// set new password
+        where: { id: user.id },
+        data: { password: hashedPassword }
+    });
+    res.status(StatusCodes.OK).json();
+}
+
 export const requestResetPassword = async (req: Request, res: Response): Promise<void> => {
     const email = validate(emailValidator, req.body?.email);
     const user = await fetchUserByEmail(email);
