@@ -8,7 +8,7 @@ export interface Email {
 
 export interface VerificationEmailCredintials {
     to: string,
-    verificationCode: number
+    verificationToken: string
 }
 export interface PasswordResetEmailCredintials {
     to: string,

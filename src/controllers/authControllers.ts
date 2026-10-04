@@ -19,7 +19,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const user: User = await fetchUserByEmail(email);
     if (!bcrypt.compareSync(password, user.password))
         throw new Unauthorized('Invalid Email or Password');// wrong password
-
+    if (!user.isEmailVerified)
+        throw new Unauthorized('Email not Verified');// unverified email
     // successful login
     const refreshToken = await issueRefreshToken(user);
     res.status(StatusCodes.OK).json({ refreshToken });
