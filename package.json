@@ -30,7 +30,8 @@
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^10.0.14",
     "resend": "^6.32.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
