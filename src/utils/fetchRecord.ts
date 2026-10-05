@@ -44,7 +44,7 @@ export const fetchResetToken = async (token: string): Promise<ResetPasswordToken
         }
     });
 
-    if (!resetToken) throw new BadRequest('Invalid ResetPP Token');
+    if (!resetToken) throw new BadRequest('Invalid Reset Token');
     if (resetToken.isRevoked) throw new BadRequest('Invalid Reset Token');
     if (!isFutureDate(resetToken.expiresAt)) throw new BadRequest('Invalid Reset Token');
     return resetToken;

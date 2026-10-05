@@ -84,12 +84,13 @@ export const createResetToken = async (user: User): Promise<string> => {
         where: { userId: user.id },
         update: {
             token: resetToken.hash,
-            expiresAt: getNextHour(),
+            expiresAt: getNextHour(),// expires in an hour
+            isRevoked: false
         },
         create: {
             userId: user.id,
             token: resetToken.hash,
-            expiresAt: getNextHour(),
+            expiresAt: getNextHour(),// expires in an hour
         }
     });
     return resetToken.raw;
@@ -135,6 +136,7 @@ const createVerificationToken = async (user: User): Promise<string> => {
         update: {// if there exists a token; replace it
             token: verificationToken.hash,
             expiresAt: getFutureDate(1),// expires in 24 hours
+            isRevoked: false
         },
         create: {// if no token exists; create one
             userId: user.id,
