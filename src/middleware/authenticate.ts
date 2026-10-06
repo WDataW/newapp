@@ -7,8 +7,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     const jwt = extractBearer(req);
 
     const payload: AccessJWTOutput = verifyAccessJWT(jwt);
-    const userId = payload.sub;
-    req.user = { userId }
+    const id = payload.sub;
+    req.user = { id }
 
     next();
 }

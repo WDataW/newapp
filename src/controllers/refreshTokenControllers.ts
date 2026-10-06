@@ -9,17 +9,18 @@ import { validate } from '#root/src/validations/validate.ts';
 import { refreshTokenSchema } from '#root/src/validations/authSchemas.ts';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import { fetchRefreshToken, fetchUser } from '#root/src/utils/fetchRecord.ts';
+import { dateToUnixSeconds } from '#root/src/utils/time.ts';
 
 
 
 export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
     const { refreshToken } = validate(refreshTokenSchema, req.body);
-    const sub = await validateRefreshToken(refreshToken);
+    const { sub } = await validateRefreshToken(refreshToken);
     const accessToken = signAccessJWT({ sub });
     res.status(StatusCodes.OK).json({ accessToken });
 }
 
-const validateRefreshToken = async (refreshJWT: string): Promise<string> => {
+export const validateRefreshToken = async (refreshJWT: string): Promise<RefreshJWTOutput> => {
     const receivedToken: RefreshJWTOutput = verifyRefreshJWT(refreshJWT);
     const DBRefreshToken = await fetchRefreshToken(receivedToken.jti);
     if (!DBRefreshToken) throw new Unauthorized('Invalid Refresh Token');
@@ -27,11 +28,16 @@ const validateRefreshToken = async (refreshJWT: string): Promise<string> => {
     if (!isFutureDate(DBRefreshToken.expiresAt)) throw new Unauthorized('Invalid Refresh Token');
     if (receivedToken.sub !== DBRefreshToken.userId) throw new Unauthorized('Invalid Refresh Token');
 
-    const user = await fetchUser(DBRefreshToken.userId);
-    if (!user) throw new Unauthorized('Invalid Refresh Token');
+    const user = DBRefreshToken.user;
     if (DBRefreshToken.tokenVersion !== user.tokenVersion) throw new Unauthorized('Invalid Refresh Token')
 
-    return user.id;// validation successful, return user.id aka 'sub' for the next step
+    return {
+        sub: DBRefreshToken.userId,
+        jti: DBRefreshToken.id,
+        tokenVersion: DBRefreshToken.tokenVersion,
+        exp: dateToUnixSeconds(DBRefreshToken.expiresAt),
+        iat: dateToUnixSeconds(DBRefreshToken.createdAt)
+    };// validation successful, return user.id aka 'sub' for the next step
 }
 export const createDBRefreshToken = async (user: User) => {
     const refreshToken = await prisma.refreshToken.create({

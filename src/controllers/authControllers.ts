@@ -2,14 +2,14 @@ import { prisma } from '#root/prisma/client.ts';
 import bcrypt, { hash } from 'bcrypt';
 import { BadRequest } from '#root/src/errors/BadRequest.ts';
 import { hashPassword } from '#root/src/utils/hashPassword.ts';
-import { loginSchema, registerSchema, resetPasswordSchema } from '#root/src/validations/authSchemas.ts';
+import { loginSchema, refreshTokenSchema, registerSchema, resetPasswordSchema } from '#root/src/validations/authSchemas.ts';
 import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import type { ResetPasswordToken, User } from '#root/generated/prisma/client.ts';
-import { issueRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
-import { fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
+import { issueRefreshToken, validateRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
+import { fetchRefreshToken, fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
 import { sendFakeResetEmail, sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
 import { getFutureDate, getNextHour, isFutureDate } from '#root/src/utils/date.ts';
@@ -27,6 +27,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // successful login
     const refreshToken = await issueRefreshToken(user);
     res.status(StatusCodes.OK).json({ refreshToken });
+}
+export const logout = async (req: Request, res: Response): Promise<void> => {
+    const { refreshToken } = validate(refreshTokenSchema, req.body);
+    const validatedToken = await validateRefreshToken(refreshToken);
+    await prisma.refreshToken.update({
+        where: {
+            id: validatedToken.jti,
+            userId: validatedToken.sub
+        },
+        data: {
+            isRevoked: true// logout: revoke the current refreshToken
+        }
+    });
+    res.status(StatusCodes.OK).json();
 }
 export const register = async (req: Request, res: Response): Promise<void> => {
     const { email, password, username } = validate(registerSchema, req.body);

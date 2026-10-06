@@ -7,10 +7,13 @@ import { BadRequest } from '#root/src/errors/BadRequest.ts';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
 import { isFutureDate } from '#root/src/utils/date.ts';
 
-export const fetchRefreshToken = async (id: string): Promise<RefreshToken> => {
+export const fetchRefreshToken = async (id: string): Promise<RefreshToken & { user: { tokenVersion: number } }> => {
     const refreshToken = await prisma.refreshToken.findUnique({
         where: {
             id
+        },
+        include: {// fetch user tokenVersion for validation
+            user: { select: { tokenVersion: true } }
         }
     });
     if (!refreshToken) throw new Unauthorized('Invalid Refresh Token');
