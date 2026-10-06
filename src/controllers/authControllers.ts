@@ -17,6 +17,7 @@ import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/val
 import { hashString } from '#root/src/utils/hashString.ts';
 
 
+// Log in/out Starts Here
 export const login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = validate(loginSchema, req.body);
     const user: User = await fetchUserByEmail(email);
@@ -42,6 +43,8 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     });
     res.status(StatusCodes.OK).json();
 }
+// Log in/out Ends Here
+
 export const register = async (req: Request, res: Response): Promise<void> => {
     const { email, password, username } = validate(registerSchema, req.body);
     const hashedPassword = await hashPassword(password);
