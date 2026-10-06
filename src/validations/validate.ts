@@ -1,4 +1,4 @@
-import { ValidationError } from '#root/src/errors/ValidationError.ts';
+import ValidationError from '#root/src/errors/ValidationError.ts';
 import type { ZodType } from 'zod';
 import { z as zod } from 'zod';
 import { createErrorMap, fromError } from 'zod-validation-error';

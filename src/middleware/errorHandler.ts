@@ -1,4 +1,4 @@
-import { CustomError } from '#root/src/errors/CustomError.ts';
+import CustomError from '#root/src/errors/CustomError.ts';
 import type { NextFunction, Request, Response } from 'express';
 export const errorHandler = async (err: CustomError, req: Request, res: Response, next: NextFunction) => {
     const customError = new CustomError('Something unexpected happened. Try again later');

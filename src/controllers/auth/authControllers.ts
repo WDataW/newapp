@@ -5,7 +5,7 @@ import { loginSchema, refreshTokenSchema, registerSchema } from '#root/src/valid
 import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
-import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
+import Unauthorized from '#root/src/errors/Unauthorized.ts';
 import type { User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken, validateRefreshToken } from '#root/src/controllers/auth/refreshTokenControllers.ts';
 import { fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';

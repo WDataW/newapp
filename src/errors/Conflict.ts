@@ -1,8 +1,8 @@
+
 import CustomError from '#root/src/errors/CustomError.ts';
 import { StatusCodes } from 'http-status-codes';
-
-export default class NotFound extends CustomError {
-    statusCode = StatusCodes.NOT_FOUND;
+export default class Conflict extends CustomError {
+    statusCode = StatusCodes.CONFLICT;
     constructor(message: string) {
         super(message);
     };

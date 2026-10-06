@@ -1,6 +1,4 @@
 export const isFutureDate = (date: Date): boolean => date > new Date();
-export const dateOfInvocation = (): Date => new Date();
-
 
 export const getFutureDate = (dateOffset: number): Date => {// offset in days
     const newDate = new Date();

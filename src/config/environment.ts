@@ -1,4 +1,4 @@
-import { CustomError } from '#root/src/errors/CustomError.ts';
+import CustomError from '#root/src/errors/CustomError.ts';
 
 const getEnv = (key: string): string => {
     if (!process.env[key]) throw new CustomError(`Env variable missing at: ${key}`);

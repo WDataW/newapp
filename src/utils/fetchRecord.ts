@@ -3,8 +3,8 @@
 import type { VerificationToken } from '#root/generated/prisma/browser.ts';
 import type { RefreshToken, ResetPasswordToken, User } from '#root/generated/prisma/client.ts';
 import { prisma } from '#root/prisma/client.ts';
-import { BadRequest } from '#root/src/errors/BadRequest.ts';
-import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
+import BadRequest from '#root/src/errors/BadRequest.ts';
+import Unauthorized from '#root/src/errors/Unauthorized.ts';
 import { isFutureDate } from '#root/src/utils/date.ts';
 
 export const fetchRefreshToken = async (id: string): Promise<RefreshToken & { user: { tokenVersion: number } }> => {

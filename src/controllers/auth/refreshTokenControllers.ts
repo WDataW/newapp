@@ -7,8 +7,8 @@ import type { RefreshJWTInput, RefreshJWTOutput } from '#root/src/types/authType
 import { StatusCodes } from 'http-status-codes';
 import { validate } from '#root/src/validations/validate.ts';
 import { refreshTokenSchema } from '#root/src/validations/authSchemas.ts';
-import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
-import { fetchRefreshToken, fetchUser } from '#root/src/utils/fetchRecord.ts';
+import Unauthorized from '#root/src/errors/Unauthorized.ts';
+import { fetchRefreshToken } from '#root/src/utils/fetchRecord.ts';
 import { dateToUnixSeconds } from '#root/src/utils/time.ts';
 
 

@@ -1,11 +1,8 @@
 import { JWT_SECRET } from '#root/src/config/environment.ts';
-import { CustomError } from '#root/src/errors/CustomError.ts';
 import type { AccessJWTInput, AccessJWTOutput, JwtInitalOutput, RefreshJWTInput, RefreshJWTOutput } from '#root/src/types/authTypes.ts';
-import { day, minute, msToMinute } from '#root/src/utils/time.ts';
 import { accessJWTPayloadSchema, refreshJWTPayloadSchema } from '#root/src/validations/authSchemas.ts';
 import { validate } from '#root/src/validations/validate.ts';
 import { default as JWT } from 'jsonwebtoken';
-import { default as zod } from 'zod';
 
 // keep here for reference
 // interface authTokens {

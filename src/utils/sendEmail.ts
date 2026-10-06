@@ -1,5 +1,5 @@
 import { RESEND_SECRET_KEY } from '#root/src/config/environment.ts';
-import { CustomError } from '#root/src/errors/CustomError.ts';
+import CustomError from '#root/src/errors/CustomError.ts';
 import type { Email } from '#root/src/types/emailTypes.ts';
 import { Resend } from 'resend';
 const resend = new Resend(RESEND_SECRET_KEY);

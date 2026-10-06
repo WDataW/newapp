@@ -16,6 +16,10 @@ model User{
   username String @unique
   isEmailVerified Boolean @default(false)
 
+  deletedAt DateTime?
+  purgeAfter DateTime?
+  anonymizedAt DateTime?
+
   tokenVersion Int @default(0)
   refreshTokens RefreshToken[]
   verificationToken VerificationToken?
