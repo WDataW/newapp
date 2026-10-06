@@ -1,5 +1,5 @@
-import { login, logout, logoutAllSessions, register, requestResetPassword, resendVerificationEmail, resetPassword, showMe, verifyEmail } from '#root/src/controllers/authControllers.ts';
-import { refreshAccessToken } from '#root/src/controllers/refreshTokenControllers.ts';
+import { login, logout, logoutAllSessions, register, requestResetPassword, resendVerificationEmail, resetPassword, showMe, verifyEmail } from '#root/src/controllers/auth/authControllers.ts';
+import { refreshAccessToken } from '#root/src/controllers/auth/refreshTokenControllers.ts';
 import { authenticate } from '#root/src/middleware/authenticate.ts';
 import express from 'express';
 export const authRouter = express.Router()
