@@ -43,6 +43,14 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     });
     res.status(StatusCodes.OK).json();
 }
+export const logoutAllSessions = async (req: Request, res: Response): Promise<void> => {
+    const id = req.user.id;
+    await prisma.user.update({
+        where: { id },
+        data: { tokenVersion: { increment: 1 } }
+    });
+    res.status(StatusCodes.OK).json();
+}
 // Log in/out Ends Here
 
 export const register = async (req: Request, res: Response): Promise<void> => {
