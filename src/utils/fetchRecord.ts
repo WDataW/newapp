@@ -54,7 +54,6 @@ export const fetchResetToken = async (token: string): Promise<ResetPasswordToken
         resetToken.isRevoked ||
         !isFutureDate(resetToken.expiresAt)
     ) throw new BadRequest('Invalid Reset Token');
-    if () throw new BadRequest('Invalid Reset Token');
     return resetToken;
 }
 export const fetchUserByEmail = async (email: string): Promise<User> => {
