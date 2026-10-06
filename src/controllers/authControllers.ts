@@ -1,18 +1,17 @@
 import { prisma } from '#root/prisma/client.ts';
-import bcrypt, { hash } from 'bcrypt';
-import { BadRequest } from '#root/src/errors/BadRequest.ts';
+import bcrypt from 'bcrypt';
 import { hashPassword } from '#root/src/utils/hashPassword.ts';
-import { loginSchema, refreshTokenSchema, registerSchema, resetPasswordSchema } from '#root/src/validations/authSchemas.ts';
+import { loginSchema, refreshTokenSchema, registerSchema } from '#root/src/validations/authSchemas.ts';
 import { validate } from '#root/src/validations/validate.ts';
 import type { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes';
 import { Unauthorized } from '#root/src/errors/Unauthorized.ts';
-import type { ResetPasswordToken, User } from '#root/generated/prisma/client.ts';
+import type { User } from '#root/generated/prisma/client.ts';
 import { issueRefreshToken, validateRefreshToken } from '#root/src/controllers/refreshTokenControllers.ts';
-import { fetchRefreshToken, fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
-import { sendFakeResetEmail, sendFakeVerificationEmail, sendVerificationEmail } from '#root/src/utils/emails.ts';
+import { fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } from '#root/src/utils/fetchRecord.ts';
+import { sendFakeResetEmail, sendFakeVerificationEmail } from '#root/src/utils/emails.ts';
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
-import { getFutureDate, getNextHour, isFutureDate } from '#root/src/utils/date.ts';
+import { getFutureDate, getNextHour } from '#root/src/utils/date.ts';
 import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
 import { hashString } from '#root/src/utils/hashString.ts';
 
@@ -95,7 +94,6 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     });
     res.status(StatusCodes.OK).json();
 }
-
 export const requestResetPassword = async (req: Request, res: Response): Promise<void> => {
     const email = validate(emailValidator, req.body?.email);
     const user = await fetchUserByEmail(email);
@@ -142,7 +140,6 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     });
     res.status(StatusCodes.OK).json();
 }
-
 export const resendVerificationEmail = async (req: Request, res: Response): Promise<void> => {
     const email = validate(emailValidator, req.body?.email);
     const user = await fetchUserByEmail(email);
