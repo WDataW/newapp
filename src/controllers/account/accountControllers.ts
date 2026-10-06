@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import type { Request, Response } from 'express';
 import { validate } from '#root/src/validations/validate.ts';
 import { passwordValdiator } from '#root/src/validations/credintialsValidators.ts';
-import { fetchUser, fetchUserByEmail } from '#root/src/utils/fetchRecord.ts';
+import { fetchUser } from '#root/src/utils/fetchRecord.ts';
 import bcrypt from 'bcrypt';
 import { prisma } from '#root/prisma/client.ts';
 import { getFutureDate } from '#root/src/utils/date.ts';
@@ -11,7 +11,6 @@ import Conflict from '#root/src/errors/Conflict.ts';
 import type { User } from '#root/generated/prisma/browser.ts';
 import Unauthorized from '#root/src/errors/Unauthorized.ts';
 import { loginSchema } from '#root/src/validations/authSchemas.ts';
-import BadRequest from '#root/src/errors/BadRequest.ts';
 export const deleteAccount = async (req: Request, res: Response): Promise<void> => {
     const password = validate(passwordValdiator, req.body?.password);
     const user = await fetchUser(req.user.id);

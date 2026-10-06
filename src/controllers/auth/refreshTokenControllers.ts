@@ -23,10 +23,11 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
 export const validateRefreshToken = async (refreshJWT: string): Promise<RefreshJWTOutput> => {
     const receivedToken: RefreshJWTOutput = verifyRefreshJWT(refreshJWT);
     const DBRefreshToken = await fetchRefreshToken(receivedToken.jti);
-    if (!DBRefreshToken) throw new Unauthorized('Invalid Refresh Token');
-    if (DBRefreshToken.isRevoked) throw new Unauthorized('Invalid Refresh Token');
-    if (!isFutureDate(DBRefreshToken.expiresAt)) throw new Unauthorized('Invalid Refresh Token');
-    if (receivedToken.sub !== DBRefreshToken.userId) throw new Unauthorized('Invalid Refresh Token');
+    if (!DBRefreshToken ||
+        DBRefreshToken.isRevoked ||
+        !isFutureDate(DBRefreshToken.expiresAt) ||
+        receivedToken.sub !== DBRefreshToken.userId
+    ) throw new Unauthorized('Invalid Refresh Token');
 
     const user = DBRefreshToken.user;
     if (DBRefreshToken.tokenVersion !== user.tokenVersion) throw new Unauthorized('Invalid Refresh Token')
