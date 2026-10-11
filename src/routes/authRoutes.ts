@@ -1,4 +1,4 @@
-import { login, logout, logoutAllSessions, register, requestResetPassword, resendVerificationEmail, resetPassword, showMe, verifyEmail } from '#root/src/controllers/auth/authControllers.ts';
+import { checkUsernameAvailability, login, logout, logoutAllSessions, register, requestResetPassword, resendVerificationEmail, resetPassword, showMe, verifyEmail } from '#root/src/controllers/auth/authControllers.ts';
 import { refreshAccessToken } from '#root/src/controllers/auth/refreshTokenControllers.ts';
 import { authenticate } from '#root/src/middleware/authenticate.ts';
 import express from 'express';
@@ -6,6 +6,7 @@ export const authRouter = express.Router()
 
 authRouter.post('/login', login);
 authRouter.post('/register', register);
+authRouter.get('/check-username', checkUsernameAvailability);
 authRouter.post('/refresh', refreshAccessToken);
 authRouter.post('/resend-verification-email', resendVerificationEmail);
 authRouter.get('/verify-email', verifyEmail);

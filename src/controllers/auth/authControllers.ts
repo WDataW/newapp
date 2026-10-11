@@ -12,7 +12,7 @@ import { fetchResetToken, fetchUser, fetchUserByEmail, fetchVerificationToken } 
 import { sendFakeResetEmail, sendFakeVerificationEmail } from '#root/src/utils/emails.ts';
 import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
 import { getFutureDate, getNextHour } from '#root/src/utils/date.ts';
-import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
+import { emailValidator, passwordValdiator, tokenValidator, usernameValidator } from '#root/src/validations/credintialsValidators.ts';
 import { hashString } from '#root/src/utils/hashString.ts';
 import { isUsernameTaken } from '#root/src/utils/isUsernameTaken.ts';
 import Conflict from '#root/src/errors/Conflict.ts';
@@ -58,17 +58,22 @@ export const logoutAllSessions = async (req: Request, res: Response): Promise<vo
 export const register = async (req: Request, res: Response): Promise<void> => {
     const { email, password, username } = validate(registerSchema, req.body);
     const hashedPassword = await hashPassword(password);
-    const existingUser = await fetchUserByEmail(email);
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-        // existing account just resend verification email
-        await requestVerificationEmail(existingUser);
+        if (!existingUser.isEmailVerified) {
+            // existing account just resend verification email
+            await requestVerificationEmail(existingUser);
+            res.status(StatusCodes.OK).json();
+            return;// don't create a new user since they already exist
+        }
+        // if email already verified then don't resend verification email
         res.status(StatusCodes.OK).json();
         return;// don't create a new user since they already exist
     }
 
     // in case username is taken
-    const usernameTaken = await isUsernameTaken(username);
-    if (usernameTaken) throw new Conflict('Username is taken');
+    const isTaken = await isUsernameTaken(username);
+    if (isTaken) throw new Conflict('Username is taken');
 
     const newUser = await prisma.user.create({
         data: {
@@ -78,6 +83,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // successful register
     await requestVerificationEmail(newUser);
     res.status(StatusCodes.OK).json();
+}
+export const checkUsernameAvailability = async (req: Request, res: Response): Promise<void> => {
+    const username = validate(usernameValidator, req.query?.username);
+    const isTaken = await isUsernameTaken(username);
+    console.log(isTaken);
+
+    res.status(StatusCodes.OK).json({ username, isTaken });
 }
 // Register Ends Here
 

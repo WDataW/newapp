@@ -1,4 +1,4 @@
-import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
+import { emailValidator, passwordValdiator, tokenValidator, usernameValidator } from '#root/src/validations/credintialsValidators.ts';
 import * as zod from 'zod';
 
 export const loginSchema = zod.object({
@@ -17,7 +17,7 @@ export const verifyEmailSchema = zod.object({
 export const registerSchema = zod.object({
     email: emailValidator,
     password: passwordValdiator,
-    username: zod.string().toLowerCase().min(3).max(20)
+    username: usernameValidator
 })
 
 export const refreshTokenSchema = zod.object({
