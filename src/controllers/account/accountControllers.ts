@@ -11,6 +11,10 @@ import Conflict from '#root/src/errors/Conflict.ts';
 import type { User } from '#root/generated/prisma/browser.ts';
 import Unauthorized from '#root/src/errors/Unauthorized.ts';
 import { loginSchema } from '#root/src/validations/authSchemas.ts';
+export const isUsernameUnique = async (req: Request, res: Response): Promise<void> => {
+    res.status(StatusCodes.OK).json();
+}
+
 export const deleteAccount = async (req: Request, res: Response): Promise<void> => {
     const password = validate(passwordValdiator, req.body?.password);
     const user = await fetchUser(req.user.id);
