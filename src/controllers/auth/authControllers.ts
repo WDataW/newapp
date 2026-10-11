@@ -14,6 +14,8 @@ import { generateHashedToken } from '#root/src/utils/generateHashedToken.ts';
 import { getFutureDate, getNextHour } from '#root/src/utils/date.ts';
 import { emailValidator, passwordValdiator, tokenValidator } from '#root/src/validations/credintialsValidators.ts';
 import { hashString } from '#root/src/utils/hashString.ts';
+import { isUsernameTaken } from '#root/src/utils/isUsernameTaken.ts';
+import Conflict from '#root/src/errors/Conflict.ts';
 
 
 // Log in/out Starts Here
@@ -52,6 +54,7 @@ export const logoutAllSessions = async (req: Request, res: Response): Promise<vo
 }
 // Log in/out Ends Here
 
+// Register Starts Here
 export const register = async (req: Request, res: Response): Promise<void> => {
     const { email, password, username } = validate(registerSchema, req.body);
     const hashedPassword = await hashPassword(password);
@@ -62,6 +65,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         res.status(StatusCodes.OK).json();
         return;// don't create a new user since they already exist
     }
+
+    // in case username is taken
+    const usernameTaken = await isUsernameTaken(username);
+    if (usernameTaken) throw new Conflict('Username is taken');
+
     const newUser = await prisma.user.create({
         data: {
             email, password: hashedPassword, username
@@ -71,6 +79,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     await requestVerificationEmail(newUser);
     res.status(StatusCodes.OK).json();
 }
+// Register Ends Here
 
 // Password Reset Starts Here
 export const resetPassword = async (req: Request, res: Response): Promise<void> => {
